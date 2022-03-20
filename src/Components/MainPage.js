@@ -218,17 +218,17 @@ class MainPage extends React.Component {
                         'page-third-column': isChatDetailsVisible
                     })}>
                     <Dialogs />
-                    <DialogDetails ref={this.dialogDetailsRef} />
-                    {isChatDetailsVisible && <ChatInfo />}
+                    {/* <DialogDetails ref={this.dialogDetailsRef} /> */}
+                    {/* {isChatDetailsVisible && <ChatInfo />} */}
                 </div>
                 <Actions/>
-                {Boolean(instantViewContent) && <InstantViewer {...instantViewContent} />}
+                {/* {Boolean(instantViewContent) && <InstantViewer {...instantViewContent} />}
                 {Boolean(mediaViewerContent) && <MediaViewer {...mediaViewerContent} />}
                 {Boolean(profileMediaViewerContent) && <ProfileMediaViewer {...profileMediaViewerContent} />}
                 {Boolean(forwardInfo) && <ForwardDialog {...forwardInfo} />}
                 {Boolean(videoInfo) && <PipPlayer {...videoInfo}/>}
                 {Boolean(groupCallId) && <GroupCall groupCallId={groupCallId}/>}
-                {Boolean(callId) && <Call callId={callId}/>}
+                {Boolean(callId) && <Call callId={callId}/>} */}
             </>
         );
     }

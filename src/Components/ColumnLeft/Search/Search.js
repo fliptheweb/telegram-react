@@ -61,15 +61,15 @@ class Search extends React.Component {
             return;
         }
 
-        switch (event.key) {
-            case 'Escape':
-                event.preventDefault();
-                event.stopPropagation();
-                event.target.blur();
+        // switch (event.key) {
+        //     case 'Escape':
+        //         event.preventDefault();
+        //         event.stopPropagation();
+        //         event.target.blur();
 
-                this.handleClose();
-                break;
-        }
+        //         this.handleClose();
+        //         break;
+        // }
     };
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -185,51 +185,56 @@ class Search extends React.Component {
             store = FileStore.getStore();
             loadChatsContent(store, local);
 
-            let trimmedText = text.trim();
-            trimmedText = trimmedText.startsWith('@') ? trimmedText.substr(1) : trimmedText;
-            if (trimmedText.length >= SEARCH_GLOBAL_TEXT_MIN) {
-                trimmedText = trimmedText.length === SEARCH_GLOBAL_TEXT_MIN ? trimmedText + '.' : trimmedText;
+            // let trimmedText = text.trim();
+            // trimmedText = trimmedText.startsWith('@') ? trimmedText.substr(1) : trimmedText;
+            // if (trimmedText.length >= SEARCH_GLOBAL_TEXT_MIN) {
+            //     trimmedText = trimmedText.length === SEARCH_GLOBAL_TEXT_MIN ? trimmedText + '.' : trimmedText;
 
-                const globalPromises = [];
+            //     const globalPromises = [];
 
-                const globalPromise = TdLibController.send({
-                    '@type': 'searchPublicChats',
-                    query: trimmedText
-                });
-                globalPromises.push(globalPromise);
+            //     // const globalPromise = TdLibController.send({
+            //     //     '@type': 'searchPublicChats',
+            //     //     query: trimmedText
+            //     // });
+            //     // globalPromises.push(globalPromise);
 
-                if (latinText) {
-                    let latinTrimmedText = latinText.trim();
-                    latinTrimmedText = latinTrimmedText.startsWith('@') ? latinTrimmedText.substr(1) : latinTrimmedText;
-                    if (latinTrimmedText.length >= USERNAME_LENGTH_MIN && latinTrimmedText !== trimmedText) {
-                        const globalLatinPromise = TdLibController.send({
-                            '@type': 'searchPublicChats',
-                            query: latinTrimmedText
-                        });
-                        globalPromises.push(globalLatinPromise);
-                    }
-                }
+            //     // if (latinText) {
+            //     //     let latinTrimmedText = latinText.trim();
+            //     //     latinTrimmedText = latinTrimmedText.startsWith('@') ? latinTrimmedText.substr(1) : latinTrimmedText;
+            //     //     if (latinTrimmedText.length >= USERNAME_LENGTH_MIN && latinTrimmedText !== trimmedText) {
+            //     //         const globalLatinPromise = TdLibController.send({
+            //     //             '@type': 'searchPublicChats',
+            //     //             query: latinTrimmedText
+            //     //         });
+            //     //         globalPromises.push(globalLatinPromise);
+            //     //     }
+            //     // }
 
-                const globalResults = await Promise.all(globalPromises.map(x => x.catch(e => null)));
-                const global = this.concatSearchResults(globalResults);
+            //     const globalResults = await Promise.all(globalPromises.map(x => x.catch(e => null)));
+            //     const global = this.concatSearchResults(globalResults);
 
-                if (sessionId !== this.sessionId) {
-                    return;
-                }
+            //     if (sessionId !== this.sessionId) {
+            //         return;
+            //     }
 
-                this.setState({
-                    global
-                });
+            //     this.setState({
+            //         global
+            //     });
 
-                store = FileStore.getStore();
-                loadChatsContent(store, global);
-            } else {
-                this.setState({
-                    global: null
-                });
-            }
+            //     store = FileStore.getStore();
+            //     loadChatsContent(store, global);
+            // } else {
+            //     this.setState({
+            //         global: null
+            //     });
+            // }
+            this.setState({
+                global: null
+            });
         }
 
+        ////////////////////////////////////////////
+        //
         let messages = [];
         if (chatId) {
             messages = await TdLibController.send({
@@ -327,13 +332,13 @@ class Search extends React.Component {
             return;
         }
 
-        const topPromise = TdLibController.send({
-            '@type': 'getTopChats',
-            category: { '@type': 'topChatCategoryUsers' },
-            limit: 30
-        }).catch(() => {
-            return { '@type': 'chats', chat_ids: [] };
-        });
+        // const topPromise = TdLibController.send({
+        //     '@type': 'getTopChats',
+        //     category: { '@type': 'topChatCategoryUsers' },
+        //     limit: 30
+        // }).catch(() => {
+        //     return { '@type': 'chats', chat_ids: [] };
+        // });
 
         const recentlyFoundPromise = TdLibController.send({
             '@type': 'searchChats',
@@ -349,14 +354,12 @@ class Search extends React.Component {
             force: true
         }).catch(error => {});
 
-        const [top, recentlyFound, savedMessages] = await Promise.all([
-            topPromise,
+        const [recentlyFound, savedMessages] = await Promise.all([
             recentlyFoundPromise,
-            savedMessagesPromise
+            // savedMessagesPromise
         ]);
 
         this.setState({
-            top,
             recentlyFound,
             savedMessages,
             local: null,
@@ -366,7 +369,7 @@ class Search extends React.Component {
         });
 
         const store = FileStore.getStore();
-        loadChatsContent(store, top.chat_ids);
+        // loadChatsContent(store, top.chat_ids);
         loadChatsContent(store, recentlyFound.chat_ids);
     };
 
@@ -441,25 +444,25 @@ class Search extends React.Component {
 
         this.loading = true;
         let result = [];
-        if (chatId) {
-            result = await TdLibController.send({
-                '@type': 'searchChatMessages',
-                chat_id: chatId,
-                query: this.text,
-                sender_user_id: 0,
-                from_message_id: offset.offset_message_id,
-                limit: 50,
-                filter: null
-            });
-        } else {
-            result = await TdLibController.send({
-                '@type': 'searchMessages',
-                chat_list: { '@type': 'chatListMain' },
-                query: this.text,
-                ...offset,
-                limit: 50
-            });
-        }
+        // if (chatId) {
+        //     result = await TdLibController.send({
+        //         '@type': 'searchChatMessages',
+        //         chat_id: chatId,
+        //         query: this.text,
+        //         sender_user_id: 0,
+        //         from_message_id: offset.offset_message_id,
+        //         limit: 50,
+        //         filter: null
+        //     });
+        // } else {
+        result = await TdLibController.send({
+            '@type': 'searchMessages',
+            chat_list: { '@type': 'chatListMain' },
+            query: this.text,
+            ...offset,
+            limit: 50
+        });
+        // }
         this.loading = false;
 
         filterDuplicateMessages(result, messages ? messages.messages : []);
@@ -562,39 +565,39 @@ class Search extends React.Component {
                   ))
                 : [];
 
-        const localChats = local
-            ? local.map(x => (
-                  <RecentlyFoundChat
-                      key={x}
-                      chatId={x}
-                      onClick={() => this.handleSelectMessage(x, null, true, false)}
-                  />
-              ))
-            : [];
+        // const localChats = local
+        //     ? local.map(x => (
+        //           <RecentlyFoundChat
+        //               key={x}
+        //               chatId={x}
+        //               onClick={() => this.handleSelectMessage(x, null, true, false)}
+        //           />
+        //       ))
+        //     : [];
 
-        const globalChatsMap = new Map();
-        const globalChats = global
-            ? global.map(x => {
-                  globalChatsMap.set(x, x);
+        // const globalChatsMap = new Map();
+        // const globalChats = global
+        //     ? global.map(x => {
+        //           globalChatsMap.set(x, x);
 
-                  return (
-                      <FoundPublicChat
-                          key={x}
-                          chatId={x}
-                          onClick={() => this.handleSelectMessage(x, null, true, true)}
-                      />
-                  );
-              })
-            : [];
+        //           return (
+        //               <FoundPublicChat
+        //                   key={x}
+        //                   chatId={x}
+        //                   onClick={() => this.handleSelectMessage(x, null, true, true)}
+        //               />
+        //           );
+        //       })
+        //     : [];
 
-        const globalLinkChat =
-            linkMessage && linkMessage.chat_id && !linkMessage.message && !globalChatsMap.has(linkMessage.chat_id) ? (
-                <FoundPublicChat
-                    key={linkMessage.chat_id}
-                    chatId={linkMessage.chat_id}
-                    onClick={() => this.handleSelectMessage(linkMessage.chat_id, null, true, true)}
-                />
-            ) : null;
+        // const globalLinkChat =
+        //     linkMessage && linkMessage.chat_id && !linkMessage.message && !globalChatsMap.has(linkMessage.chat_id) ? (
+        //         <FoundPublicChat
+        //             key={linkMessage.chat_id}
+        //             chatId={linkMessage.chat_id}
+        //             onClick={() => this.handleSelectMessage(linkMessage.chat_id, null, true, true)}
+        //         />
+        //     ) : null;
 
         const globalMessagesMap = new Map();
         const globalMessages =
@@ -686,7 +689,7 @@ class Search extends React.Component {
                         {recentlyFoundChats}
                     </div>
                 )}
-                {localChats.length > 0 && (
+                {/* {localChats.length > 0 && (
                     <>
                         <div className='sidebar-page-section'>
                             <SectionHeader>{t('ChatsAndContacts')}</SectionHeader>
@@ -694,8 +697,8 @@ class Search extends React.Component {
                         </div>
                         <div className='sidebar-page-section-divider' />
                     </>
-                )}
-                {globalChats.length > 0 && (
+                )} */}
+                {/* {globalChats.length > 0 && (
                     <>
                         <div className='sidebar-page-section'>
                             <SectionHeader>{t('GlobalSearch')}</SectionHeader>
@@ -704,7 +707,7 @@ class Search extends React.Component {
                         </div>
                         <div className='sidebar-page-section-divider' />
                     </>
-                )}
+                )} */}
                 {(messages || (linkMessage && linkMessage.message)) && (
                     <div className='sidebar-page-section'>
                         <SectionHeader>{messagesCaption}</SectionHeader>

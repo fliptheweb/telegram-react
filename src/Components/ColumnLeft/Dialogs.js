@@ -55,7 +55,7 @@ class Dialogs extends Component {
             archiveItems: [],
 
             timeout: defaultTimeout,
-            openSearch: false,
+            openSearch: true,
             openArchive: false,
             openContacts: false,
             openSettings: false,

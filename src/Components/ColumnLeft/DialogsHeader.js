@@ -134,7 +134,7 @@ class DialogsHeader extends React.Component {
 
         return (
             <div className='header-master'>
-                <MainMenuButton timeout={timeout} showClose={showBack} popup={popup} onClose={this.handleCloseSearch} />
+                {/* <MainMenuButton timeout={timeout} showClose={showBack} popup={popup} onClose={this.handleCloseSearch} /> */}
                 {content}
             </div>
         );

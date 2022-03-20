@@ -97,11 +97,6 @@ mark {
     display: flex;
     flex-direction: row;
     max-width: 1680px;
-    /*min-width: 300px;*/
-    margin: 0 auto;
-    border-style: solid;
-    border-width: 0 1px 0 1px;
-    border-color: var(--border);
     background: var(--background);
     color: var(--text-primary);
     overflow: hidden;
