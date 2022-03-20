@@ -445,6 +445,14 @@ class Dialogs extends Component {
             <>
                 <div className='dialogs'>
                     <div className='sidebar-page'>
+                        <div>
+                            <ul>
+                                <li>Наркотики - трава, травка, гашиш, джойн, марихуанна, гидра</li>
+                                <li>Политика - путин, медведев, шульгина</li>
+                                <li>Украина - война, киев, слава украине, героям слава</li>
+                                <li>Заблокированные сайты - meduza, дождь, tvrain.ru</li>
+                            </ul>
+                        </div>
                         <DialogsHeader
                             ref={this.dialogsHeaderRef}
                             openSearch={openSearch}

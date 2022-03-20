@@ -24,6 +24,7 @@ import { orderCompare } from '../../../Utils/Common';
 import { getChatOrder } from '../../../Utils/Chat';
 import { modalManager } from '../../../Utils/Modal';
 import { SCROLL_PRECISION, SEARCH_GLOBAL_TEXT_MIN, USERNAME_LENGTH_MIN } from '../../../Constants';
+import { DRUGS } from '../../../SearchGroups';
 import ChatStore from '../../../Stores/ChatStore';
 import FileStore from '../../../Stores/FileStore';
 import MessageStore from '../../../Stores/MessageStore';
@@ -85,11 +86,11 @@ class Search extends React.Component {
     searchOrLoadContent(text) {
         const trimmedText = text ? text.trim() : '';
 
-        if (!trimmedText) {
-            this.loadContent();
-        } else {
-            this.searchText(trimmedText);
-        }
+        // if (!trimmedText) {
+            // this.loadContent();
+        // } else {
+        this.searchText(trimmedText);
+        // }
     }
 
     concatSearchResults = results => {
@@ -124,159 +125,187 @@ class Search extends React.Component {
         // console.log('[se] searchText=' + text);
 
         const { chatId } = this.props;
-        const { savedMessages } = this.state;
+        // const { savedMessages } = this.state;
 
-        if (!chatId) {
-            const promises = [];
-            const localPromise = TdLibController.send({
-                '@type': 'searchChats',
-                query: text,
-                limit: 100
-            });
-            promises.push(localPromise);
+        // if (!chatId) {
+        //     const promises = [];
+        //     const localPromise = TdLibController.send({
+        //         '@type': 'searchChats',
+        //         query: text,
+        //         limit: 100
+        //     });
+        //     promises.push(localPromise);
 
-            const latinText = getLatinInput(text);
-            if (latinText && latinText !== text) {
-                const latinLocalPromise = TdLibController.send({
-                    '@type': 'searchChats',
-                    query: latinText,
-                    limit: 100
-                });
-                promises.push(latinLocalPromise);
-            }
+        //     const latinText = getLatinInput(text);
+        //     if (latinText && latinText !== text) {
+        //         const latinLocalPromise = TdLibController.send({
+        //             '@type': 'searchChats',
+        //             query: latinText,
+        //             limit: 100
+        //         });
+        //         promises.push(latinLocalPromise);
+        //     }
 
-            const cyrillicText = getCyrillicInput(text);
-            if (cyrillicText && cyrillicText !== text) {
-                const cyrillicLocalPromise = TdLibController.send({
-                    '@type': 'searchChats',
-                    query: cyrillicText,
-                    limit: 100
-                });
-                promises.push(cyrillicLocalPromise);
-            }
+        //     const cyrillicText = getCyrillicInput(text);
+        //     if (cyrillicText && cyrillicText !== text) {
+        //         const cyrillicLocalPromise = TdLibController.send({
+        //             '@type': 'searchChats',
+        //             query: cyrillicText,
+        //             limit: 100
+        //         });
+        //         promises.push(cyrillicLocalPromise);
+        //     }
 
-            const results = await Promise.all(promises.map(x => x.catch(e => null)));
-            const local = this.concatSearchResults(results);
+        //     const results = await Promise.all(promises.map(x => x.catch(e => null)));
+        //     const local = this.concatSearchResults(results);
 
-            if (sessionId !== this.sessionId) {
-                return;
-            }
+        //     if (sessionId !== this.sessionId) {
+        //         return;
+        //     }
 
-            if (savedMessages) {
-                const { t } = this.props;
+        //     if (savedMessages) {
+        //         const { t } = this.props;
 
-                const searchText = text.toUpperCase();
-                const savedMessagesStrings = ['SAVED MESSAGES', t('SavedMessages').toUpperCase()];
+        //         const searchText = text.toUpperCase();
+        //         const savedMessagesStrings = ['SAVED MESSAGES', t('SavedMessages').toUpperCase()];
 
-                if (
-                    savedMessagesStrings.some(el => el.includes(searchText)) ||
-                    (latinText && savedMessagesStrings.some(el => el.includes(latinText.toUpperCase())))
-                ) {
-                    local.splice(0, 0, savedMessages.id);
-                }
-            }
+        //         if (
+        //             savedMessagesStrings.some(el => el.includes(searchText)) ||
+        //             (latinText && savedMessagesStrings.some(el => el.includes(latinText.toUpperCase())))
+        //         ) {
+        //             local.splice(0, 0, savedMessages.id);
+        //         }
+        //     }
 
-            this.setState({
-                top: null,
-                recentlyFound: null,
-                local: local
-            });
+        //     this.setState({
+        //         top: null,
+        //         recentlyFound: null,
+        //         local: local
+        //     });
 
-            store = FileStore.getStore();
-            loadChatsContent(store, local);
+        //     store = FileStore.getStore();
+        //     loadChatsContent(store, local);
 
-            // let trimmedText = text.trim();
-            // trimmedText = trimmedText.startsWith('@') ? trimmedText.substr(1) : trimmedText;
-            // if (trimmedText.length >= SEARCH_GLOBAL_TEXT_MIN) {
-            //     trimmedText = trimmedText.length === SEARCH_GLOBAL_TEXT_MIN ? trimmedText + '.' : trimmedText;
+        //     // let trimmedText = text.trim();
+        //     // trimmedText = trimmedText.startsWith('@') ? trimmedText.substr(1) : trimmedText;
+        //     // if (trimmedText.length >= SEARCH_GLOBAL_TEXT_MIN) {
+        //     //     trimmedText = trimmedText.length === SEARCH_GLOBAL_TEXT_MIN ? trimmedText + '.' : trimmedText;
 
-            //     const globalPromises = [];
+        //     //     const globalPromises = [];
 
-            //     // const globalPromise = TdLibController.send({
-            //     //     '@type': 'searchPublicChats',
-            //     //     query: trimmedText
-            //     // });
-            //     // globalPromises.push(globalPromise);
+        //     //     // const globalPromise = TdLibController.send({
+        //     //     //     '@type': 'searchPublicChats',
+        //     //     //     query: trimmedText
+        //     //     // });
+        //     //     // globalPromises.push(globalPromise);
 
-            //     // if (latinText) {
-            //     //     let latinTrimmedText = latinText.trim();
-            //     //     latinTrimmedText = latinTrimmedText.startsWith('@') ? latinTrimmedText.substr(1) : latinTrimmedText;
-            //     //     if (latinTrimmedText.length >= USERNAME_LENGTH_MIN && latinTrimmedText !== trimmedText) {
-            //     //         const globalLatinPromise = TdLibController.send({
-            //     //             '@type': 'searchPublicChats',
-            //     //             query: latinTrimmedText
-            //     //         });
-            //     //         globalPromises.push(globalLatinPromise);
-            //     //     }
-            //     // }
+        //     //     // if (latinText) {
+        //     //     //     let latinTrimmedText = latinText.trim();
+        //     //     //     latinTrimmedText = latinTrimmedText.startsWith('@') ? latinTrimmedText.substr(1) : latinTrimmedText;
+        //     //     //     if (latinTrimmedText.length >= USERNAME_LENGTH_MIN && latinTrimmedText !== trimmedText) {
+        //     //     //         const globalLatinPromise = TdLibController.send({
+        //     //     //             '@type': 'searchPublicChats',
+        //     //     //             query: latinTrimmedText
+        //     //     //         });
+        //     //     //         globalPromises.push(globalLatinPromise);
+        //     //     //     }
+        //     //     // }
 
-            //     const globalResults = await Promise.all(globalPromises.map(x => x.catch(e => null)));
-            //     const global = this.concatSearchResults(globalResults);
+        //     //     const globalResults = await Promise.all(globalPromises.map(x => x.catch(e => null)));
+        //     //     const global = this.concatSearchResults(globalResults);
 
-            //     if (sessionId !== this.sessionId) {
-            //         return;
-            //     }
+        //     //     if (sessionId !== this.sessionId) {
+        //     //         return;
+        //     //     }
 
-            //     this.setState({
-            //         global
-            //     });
+        //     //     this.setState({
+        //     //         global
+        //     //     });
 
-            //     store = FileStore.getStore();
-            //     loadChatsContent(store, global);
-            // } else {
-            //     this.setState({
-            //         global: null
-            //     });
-            // }
-            this.setState({
-                global: null
-            });
-        }
+        //     //     store = FileStore.getStore();
+        //     //     loadChatsContent(store, global);
+        //     // } else {
+        //     //     this.setState({
+        //     //         global: null
+        //     //     });
+        //     // }
+        //     this.setState({
+        //         global: null
+        //     });
+        // }
 
         ////////////////////////////////////////////
         //
         let messages = [];
-        if (chatId) {
-            messages = await TdLibController.send({
-                '@type': 'searchChatMessages',
-                chat_id: chatId,
-                query: text,
-                sender_user_id: 0,
-                from_message_id: 0,
-                offset: 0,
-                limit: 50,
-                filter: null
-            });
-        } else {
-            messages = await TdLibController.send({
-                '@type': 'searchMessages',
-                chat_list: { '@type': 'chatListMain' },
-                query: text,
-                offset_date: 0,
-                offset_chat_id: 0,
-                offset_message_id: 0,
-                limit: 50
-            });
+        // if (chatId) {
+        //     messages = await TdLibController.send({
+        //         '@type': 'searchChatMessages',
+        //         chat_id: chatId,
+        //         query: text,
+        //         sender_user_id: 0,
+        //         from_message_id: 0,
+        //         offset: 0,
+        //         limit: 50,
+        //         filter: null
+        //     });
+        // } else {
+
+        const textGroup = DRUGS;
+        const promises = [];
+        textGroup.map((text) => {
+            promises.push(this.handleLoadMessages(text));
+        });
+
+        const promisesResult = await Promise.all(promises);
+        const sortByTime = (a, b) => (b.date - a.date);
+        let DEFAULT_ACCUM = {
+            '@type': 'messages',
+            '@client_id': 1,
+            '@extra': {
+                query_id: 20
+            },
+            messages: [],
+            total_count: 0,
         }
+        messages = promisesResult.reduce((accum, item) => {
+            accum = {
+                ...accum,
+                total_count: accum.total_count + item.total_count,
+                messages: [
+                    ...accum.messages,
+                    ...item.messages,
+                ]
+            };
+            return accum;
+        }, DEFAULT_ACCUM);
+        // messages = await this.handleLoadMessages(text);
+        // this.handleLoadMessages(text);
+        messages = {
+            ...messages,
+            messages: messages.messages.sort(sortByTime),
+        }
+
 
         MessageStore.setItems(messages.messages);
 
         let linkMessage = null;
-        if (!chatId) {
-            try {
-                const messageLinkInfo = await TdLibController.send({
-                    '@type': 'getMessageLinkInfo',
-                    url: text
-                });
-                // console.log('[se] searchText=' + text + ' messageLinkInfo', messageLinkInfo);
+        // if (!chatId) {
+        //     try {
+        //         // WTF is that? need investigation
+        //         // should check internal link inside?
+        //         const messageLinkInfo = await TdLibController.send({
+        //             '@type': 'getMessageLinkInfo',
+        //             url: text
+        //         });
+        //         console.log('[se] searchText=' + text + ' messageLinkInfo', messageLinkInfo);
 
-                MessageStore.setItems([messageLinkInfo.message]);
+        //         MessageStore.setItems([messageLinkInfo.message]);
 
-                linkMessage = messageLinkInfo;
-            } catch (error) {
-                console.log('[se] searchText=' + text + ' messageLinkInfo error', error);
-            }
-        }
+        //         linkMessage = messageLinkInfo;
+        //     } catch (error) {
+        //         console.log('[se] searchText=' + text + ' messageLinkInfo error', error);
+        //     }
+        // }
 
         // console.log('[se] searchText=' + text + ' result', messages, linkMessage);
 
@@ -348,20 +377,20 @@ class Search extends React.Component {
             return { '@type': 'chats', chat_ids: [] };
         });
 
-        const savedMessagesPromise = TdLibController.send({
-            '@type': 'createPrivateChat',
-            user_id: UserStore.getMyId(),
-            force: true
-        }).catch(error => {});
+        // const savedMessagesPromise = TdLibController.send({
+        //     '@type': 'createPrivateChat',
+        //     user_id: UserStore.getMyId(),
+        //     force: true
+        // }).catch(error => {});
 
-        const [recentlyFound, savedMessages] = await Promise.all([
+        const [recentlyFound] = await Promise.all([
             recentlyFoundPromise,
             // savedMessagesPromise
         ]);
 
         this.setState({
             recentlyFound,
-            savedMessages,
+            // savedMessages,
             local: null,
             global: null,
             messages: null,
@@ -455,13 +484,7 @@ class Search extends React.Component {
         //         filter: null
         //     });
         // } else {
-        result = await TdLibController.send({
-            '@type': 'searchMessages',
-            chat_list: { '@type': 'chatListMain' },
-            query: this.text,
-            ...offset,
-            limit: 50
-        });
+        result = await this.handleLoadMessages(this.text, offset);
         // }
         this.loading = false;
 
@@ -535,6 +558,21 @@ class Search extends React.Component {
         });
     };
 
+    handleLoadMessages = async (text, offset) => {
+        offset = offset ? offset : {
+            offset_date: 0,
+            offset_chat_id: 0,
+            offset_message_id: 0,
+        }
+        return await TdLibController.send({
+            '@type': 'searchMessages',
+            chat_list: { '@type': 'chatListMain' },
+            query: text,
+            ...offset,
+            limit: 100,
+        });
+    };
+
     render() {
         const { chatId, t } = this.props;
         const { top, recentlyFound, local, global, messages, linkMessage } = this.state;
@@ -602,8 +640,8 @@ class Search extends React.Component {
         const globalMessagesMap = new Map();
         const globalMessages =
             messages && messages.messages
-                ? messages.messages.map(x => {
-                      const key = `${x.chat_id}_${x.id}`;
+                ? messages.messages.map((x, i) => {
+                      const key = `${x.chat_id}_${x.id}_${i}`;
                       globalMessagesMap.set(key, key);
 
                       return (
@@ -668,7 +706,7 @@ class Search extends React.Component {
                         <div className='sidebar-page-section-divider' />
                     </>
                 )}
-                {topChats.length > 0 && (
+                {/* {topChats.length > 0 && (
                     <>
                         <div className='sidebar-page-section'>
                             <SectionHeader>{t('ChatHints')}</SectionHeader>
@@ -680,15 +718,15 @@ class Search extends React.Component {
                         </div>
                         <div className='sidebar-page-section-divider' />
                     </>
-                )}
-                {recentlyFoundChats.length > 0 && (
+                )} */}
+                {/* {recentlyFoundChats.length > 0 && (
                     <div className='sidebar-page-section'>
                         <SectionHeader command={t('ClearButton')} onClick={this.handleClearRecentlyFound}>
                             {t('Recent')}
                         </SectionHeader>
                         {recentlyFoundChats}
                     </div>
-                )}
+                )} */}
                 {/* {localChats.length > 0 && (
                     <>
                         <div className='sidebar-page-section'>
