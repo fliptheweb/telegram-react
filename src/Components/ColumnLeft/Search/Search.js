@@ -38,7 +38,9 @@ class Search extends React.Component {
 
         this.keyboardHandler = new KeyboardHandler(this.handleKeyDown);
         this.listRef = React.createRef();
-        this.state = {};
+        this.state = {
+            selectedMessages: []
+        };
     }
 
     componentDidMount() {
@@ -97,7 +99,7 @@ class Search extends React.Component {
         const arr = [];
         const map = new Map();
 
-            for (let i = 0; i < results.length; i++) {
+        for (let i = 0; i < results.length; i++) {
             let result = results[i] && results[i].chat_ids;
             if (result) {
                 for (let j = 0; j < result.length; j++) {
@@ -250,7 +252,8 @@ class Search extends React.Component {
         //     });
         // } else {
 
-        const textGroup = DRUGS;
+        // const textGroup = DRUGS;
+        const textGroup = ['меф'];
         const promises = [];
         textGroup.map((text) => {
             promises.push(this.handleLoadMessages(text));
@@ -285,27 +288,11 @@ class Search extends React.Component {
             messages: messages.messages.sort(sortByTime),
         }
 
+        const selectedMessages = messages.messages.map((item) => {
+            return `${item.chat_id}_${item.id}`;
+        })
 
         MessageStore.setItems(messages.messages);
-
-        let linkMessage = null;
-        // if (!chatId) {
-        //     try {
-        //         // WTF is that? need investigation
-        //         // should check internal link inside?
-        //         const messageLinkInfo = await TdLibController.send({
-        //             '@type': 'getMessageLinkInfo',
-        //             url: text
-        //         });
-        //         console.log('[se] searchText=' + text + ' messageLinkInfo', messageLinkInfo);
-
-        //         MessageStore.setItems([messageLinkInfo.message]);
-
-        //         linkMessage = messageLinkInfo;
-        //     } catch (error) {
-        //         console.log('[se] searchText=' + text + ' messageLinkInfo error', error);
-        //     }
-        // }
 
         // console.log('[se] searchText=' + text + ' result', messages, linkMessage);
 
@@ -317,7 +304,7 @@ class Search extends React.Component {
 
         this.setState({
             messages,
-            linkMessage
+            selectedMessages,
         });
 
         const chats = new Map();
@@ -326,18 +313,6 @@ class Search extends React.Component {
             chats.set(messages.messages[i].chat_id, messages.messages[i].chat_id);
             if (messages.messages[i].sender_id.user_id) {
                 users.set(messages.messages[i].sender_id.user_id, messages.messages[i].sender_id.user_id);
-            }
-        }
-
-        if (linkMessage) {
-            const { chat_id, message } = linkMessage;
-
-            chats.set(chat_id, chat_id);
-            if (message) {
-                const { sender_id } = message;
-                if (sender_id && sender_id.user_id) {
-                    users.set(sender_id.user_id, sender_id.user_id);
-                }
             }
         }
 
@@ -412,17 +387,28 @@ class Search extends React.Component {
         this.setState({ recentlyFound: null });
     };
 
-    handleSelectMessage = (chatId, messageId, addToRecent, keepOpen) => {
+    handleSelectMessage = (chatId, messageId) => {
         const { onSelectMessage } = this.props;
 
-        if (addToRecent) {
-            TdLibController.send({
-                '@type': 'addRecentlyFoundChat',
-                chat_id: chatId
-            });
-        }
+        this.setState(state => {
+            const messageSignature = `${chatId}_${messageId}`;
+            const isChecked = state.selectedMessages.includes(messageSignature);
 
-        onSelectMessage(chatId, messageId, keepOpen);
+            let list = [...state.selectedMessages];
+            if (isChecked) {
+                list = list.filter((item) => item !== messageSignature);
+            } else {
+                list.push(messageSignature);
+            }
+            console.log(list);
+
+            return {
+                selectedMessages: list,
+            };
+        });
+
+
+        // onSelectMessage(chatId, messageId, keepOpen);
     };
 
     handleScroll = () => {
@@ -576,110 +562,33 @@ class Search extends React.Component {
 
     render() {
         const { chatId, t } = this.props;
-        const { top, recentlyFound, local, global, messages, linkMessage } = this.state;
+        const { messages } = this.state;
 
         const chat = ChatStore.get(chatId);
-
-        const topChats =
-            top && top.chat_ids
-                ? top.chat_ids.map(x => (
-                      <TopChat
-                          key={x}
-                          chatId={x}
-                          onSelect={() => this.handleSelectMessage(x, null, false, false)}
-                          onDelete={() => this.handleDeleteTopChat(x)}
-                      />
-                  ))
-                : [];
-
-        const recentlyFoundChats =
-            recentlyFound && recentlyFound.chat_ids
-                ? recentlyFound.chat_ids.map(x => (
-                      <RecentlyFoundChat
-                          key={x}
-                          chatId={x}
-                          onClick={() => this.handleSelectMessage(x, null, true, false)}
-                          onDelete={() => this.handleDeleteRecentlyFoundChat(x)}
-                      />
-                  ))
-                : [];
-
-        // const localChats = local
-        //     ? local.map(x => (
-        //           <RecentlyFoundChat
-        //               key={x}
-        //               chatId={x}
-        //               onClick={() => this.handleSelectMessage(x, null, true, false)}
-        //           />
-        //       ))
-        //     : [];
-
-        // const globalChatsMap = new Map();
-        // const globalChats = global
-        //     ? global.map(x => {
-        //           globalChatsMap.set(x, x);
-
-        //           return (
-        //               <FoundPublicChat
-        //                   key={x}
-        //                   chatId={x}
-        //                   onClick={() => this.handleSelectMessage(x, null, true, true)}
-        //               />
-        //           );
-        //       })
-        //     : [];
-
-        // const globalLinkChat =
-        //     linkMessage && linkMessage.chat_id && !linkMessage.message && !globalChatsMap.has(linkMessage.chat_id) ? (
-        //         <FoundPublicChat
-        //             key={linkMessage.chat_id}
-        //             chatId={linkMessage.chat_id}
-        //             onClick={() => this.handleSelectMessage(linkMessage.chat_id, null, true, true)}
-        //         />
-        //     ) : null;
 
         const globalMessagesMap = new Map();
         const globalMessages =
             messages && messages.messages
                 ? messages.messages.map((x, i) => {
-                      const key = `${x.chat_id}_${x.id}_${i}`;
-                      globalMessagesMap.set(key, key);
+                    const isChecked = this.state.selectedMessages.includes(`${x.chat_id}_${x.id}`);
 
-                      return (
-                          <FoundMessage
-                              key={key}
-                              chatId={x.chat_id}
-                              messageId={x.id}
-                              chatSearch={Boolean(chatId)}
-                              onClick={() => this.handleSelectMessage(x.chat_id, x.id, false, true)}
-                          />
-                      );
+                    const key = `${x.chat_id}_${x.id}_${i}`;
+                    globalMessagesMap.set(key, key);
+
+                    return (
+                        <FoundMessage
+                            key={key}
+                            chatId={x.chat_id}
+                            messageId={x.id}
+                            chatSearch={Boolean(chatId)}
+                            isChecked={Boolean(isChecked)}
+                            onClick={() => this.handleSelectMessage(x.chat_id, x.id)}
+                        />
+                    );
                   })
                 : [];
 
-        const globalLinkMessage =
-            linkMessage &&
-            linkMessage.message &&
-            !globalMessagesMap.has(`${linkMessage.message.chat_id}_${linkMessage.message.id}`) ? (
-                <FoundMessage
-                    key={`${linkMessage.message.chat_id}_${linkMessage.message.id}`}
-                    chatId={linkMessage.message.chat_id}
-                    messageId={linkMessage.message.id}
-                    chatSearch={false}
-                    onClick={() =>
-                        this.handleSelectMessage(linkMessage.message.chat_id, linkMessage.message.id, false, true)
-                    }
-                />
-            ) : null;
-
         let count = messages ? messages.total_count : 0;
-        if (
-            linkMessage &&
-            linkMessage.message &&
-            !globalMessagesMap.has(`${linkMessage.message.chat_id}_${linkMessage.message.id}`)
-        ) {
-            count++;
-        }
 
         let messagesCaption = t('NoMessages');
         if (count) {
@@ -707,50 +616,10 @@ class Search extends React.Component {
                         <div className='sidebar-page-section-divider' />
                     </>
                 )}
-                {/* {topChats.length > 0 && (
-                    <>
-                        <div className='sidebar-page-section'>
-                            <SectionHeader>{t('ChatHints')}</SectionHeader>
-                            <div className='search-top-chats-list' onScroll={this.handleTopChatsScroll}>
-                                <div className='search-top-chats-placeholder' />
-                                {topChats}
-                                <div className='search-top-chats-placeholder' />
-                            </div>
-                        </div>
-                        <div className='sidebar-page-section-divider' />
-                    </>
-                )} */}
-                {/* {recentlyFoundChats.length > 0 && (
-                    <div className='sidebar-page-section'>
-                        <SectionHeader command={t('ClearButton')} onClick={this.handleClearRecentlyFound}>
-                            {t('Recent')}
-                        </SectionHeader>
-                        {recentlyFoundChats}
-                    </div>
-                )} */}
-                {/* {localChats.length > 0 && (
-                    <>
-                        <div className='sidebar-page-section'>
-                            <SectionHeader>{t('ChatsAndContacts')}</SectionHeader>
-                            {localChats}
-                        </div>
-                        <div className='sidebar-page-section-divider' />
-                    </>
-                )} */}
-                {/* {globalChats.length > 0 && (
-                    <>
-                        <div className='sidebar-page-section'>
-                            <SectionHeader>{t('GlobalSearch')}</SectionHeader>
-                            {globalLinkChat}
-                            {globalChats}
-                        </div>
-                        <div className='sidebar-page-section-divider' />
-                    </>
-                )} */}
-                {(messages || (linkMessage && linkMessage.message)) && (
+
+                {messages && (
                     <div className='sidebar-page-section'>
                         <SectionHeader>{messagesCaption}</SectionHeader>
-                        {globalLinkMessage}
                         {globalMessages}
                     </div>
                 )}

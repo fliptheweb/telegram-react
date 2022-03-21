@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withTranslation } from 'react-i18next';
 import ListItem from '@material-ui/core/ListItem';
+import Checkbox from '@material-ui/core/Checkbox';
 import ChatTile from './ChatTile';
 import UserTile from './UserTile';
 import DialogTitle from './DialogTitle';
@@ -30,13 +31,17 @@ class FoundMessage extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { chatId, messageId } = this.props;
+        const { chatId, messageId, isChecked } = this.props;
 
         if (nextState.nextChatId === chatId && nextState.nextMessageId === messageId) {
             return true;
         }
 
         if (nextState.previousChatId === chatId && nextState.previousMessageId === messageId) {
+            return true;
+        }
+
+        if (nextProps.isChecked !== isChecked) {
             return true;
         }
 
@@ -58,7 +63,7 @@ class FoundMessage extends React.Component {
     };
 
     render() {
-        const { chatId, messageId, chatSearch, onClick, t } = this.props;
+        const { chatId, messageId, chatSearch, onClick, isChecked, t } = this.props;
         const selectedChatId = this.state.nextChatId;
         const selectedMessageId = this.state.nextMessageId;
         const message = MessageStore.get(chatId, messageId);
@@ -78,9 +83,16 @@ class FoundMessage extends React.Component {
                 <ChatTile chatId={chatId} dialog />
             );
 
+
         return (
             <ListItem button className={classNames('found-message', { 'item-selected': selected })} onClick={onClick}>
                 <div className='dialog-wrapper'>
+                    <div>
+                        <Checkbox
+                            checked={this.props.isChecked}
+                            color="primary"
+                        />
+                    </div>
                     {tile}
                     <div className='dialog-inner-wrapper'>
                         <div className='tile-first-row'>
@@ -114,6 +126,7 @@ FoundMessage.propTypes = {
     chatId: PropTypes.number.isRequired,
     messageId: PropTypes.number.isRequired,
     chatSearch: PropTypes.bool,
+    isChecked: PropTypes.bool,
     onClick: PropTypes.func
 };
 

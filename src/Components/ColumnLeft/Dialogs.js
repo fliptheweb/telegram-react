@@ -179,16 +179,16 @@ class Dialogs extends Component {
         const { openSettings, openContacts, openSearch, openNewGroup, openNewChannel } = this.state;
         if (openSettings || openContacts || openSearch || openNewGroup || openNewChannel) {
             this.setState({
-                    openContacts: false,
-                    openSettings: false,
-                    openSearch: false,
-                    openNewGroup: false,
-                    openNewChannel: false,
-                    timeout: 0
-                }, () => {
-                    this.setState({
-                        timeout: defaultTimeout
-                    });
+                openContacts: false,
+                openSettings: false,
+                openSearch: false,
+                openNewGroup: false,
+                openNewChannel: false,
+                timeout: 0
+            }, () => {
+                this.setState({
+                    timeout: defaultTimeout
+                });
             });
         }
     };
@@ -452,6 +452,15 @@ class Dialogs extends Component {
                                 <li>Украина - война, киев, слава украине, героям слава</li>
                                 <li>Заблокированные сайты - meduza, дождь, tvrain.ru</li>
                             </ul>
+                            <div>
+                                <label>
+                                    <input type="checkbox" />
+                                    Удалить для собеседников
+                                </label><br />
+                                <label>
+                                    <input type="checkbox" />
+                                </label>
+                            </div>
                         </div>
                         <DialogsHeader
                             ref={this.dialogsHeaderRef}
@@ -504,14 +513,14 @@ class Dialogs extends Component {
                     <SidebarPage open={openSettings} timeout={timeout} onClose={this.handleCloseSettings}>
                         <Settings chatId={meChatId} />
                     </SidebarPage>
-
+{/*
                     <SidebarPage open={openNewGroup} timeout={timeout} onClose={this.handleCloseNewGroup}>
                         <NewGroup />
                     </SidebarPage>
 
                     <SidebarPage open={openNewChannel} timeout={timeout} onClose={this.handleCloseNewChannel}>
                         <NewChannel />
-                    </SidebarPage>
+                    </SidebarPage> */}
 
                     <SidebarDialog/>
                 </div>
