@@ -570,6 +570,7 @@ class Search extends React.Component {
             query: text,
             ...offset,
             limit: 100,
+            // filter_:
         });
     };
 
