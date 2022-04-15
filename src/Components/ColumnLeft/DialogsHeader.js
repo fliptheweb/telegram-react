@@ -12,6 +12,7 @@ import SearchInput from './Search/SearchInput';
 import { isAuthorizationReady } from '../../Utils/Common';
 import AppStore from '../../Stores/ApplicationStore';
 import '../ColumnMiddle/Header.css';
+import { DRUGS, UKRAINE, POLITICS, PRIVATE_LIFE } from '../../SearchGroups';
 
 class DialogsHeader extends React.Component {
     constructor(props) {
@@ -115,7 +116,7 @@ class DialogsHeader extends React.Component {
     };
 
     render() {
-        const { openSearch, timeout, popup } = this.props;
+        const { openSearch, timeout, popup, onGroupSelected } = this.props;
 
         let content = null;
         let showBack = false;
@@ -136,6 +137,9 @@ class DialogsHeader extends React.Component {
             <div className='header-master'>
                 {/* <MainMenuButton timeout={timeout} showClose={showBack} popup={popup} onClose={this.handleCloseSearch} /> */}
                 {content}
+                <div className='header-suggestions'>
+                    or select <span className='header-suggestion' onClick={() => {onGroupSelected(DRUGS)}}>drugs</span>, <span className='header-suggestion' onClick={() => {onGroupSelected(POLITICS)}}>politics</span>, <span className='header-suggestion' onClick={() => {onGroupSelected(PRIVATE_LIFE)}}>private life</span>
+                </div>
             </div>
         );
     }

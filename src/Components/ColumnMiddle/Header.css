@@ -5,6 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+.header-suggestions {
+    width: 100%;
+    margin: 0 12px 8px 14px;
+    padding: 0 12px 0 10px;
+}
+
+.header-suggestion {
+    text-decoration: underline dashed;
+}
+
 .header-master {
     /*height: 60px;*/
     display: flex;
@@ -12,6 +22,8 @@
     overflow: hidden;
     flex-shrink: 0;
     padding: 0 8px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
 }
 
 .header-details {

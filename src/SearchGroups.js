@@ -1,4 +1,5 @@
-export const DRUGS = 'гидра,hydra,меф,трава,травка,джойн,гашиш,марихуана,джойнт,бошки,шишки,бонг,вапорайзер,кокаин,ксанакс'.split(',');
-export const POLITICS = 'путин,тоталитаризм,революция,шульман,митинг,болотная'.split(',');
-export const UKRAINE = 'зеленский,украина,майдан'.split(',');
-export const PRIVATE_LIFE = 'секс,мастурбация,дроч,нюдс,член,хуй,пизда'.split(',');
+export const DRUGS = 'гидра, hydra, меф, трава, травка, джойнт, гашиш, марихуана, бошки, шишки, бонг, вапорайзер, кокаин, ксанакс'
+export const POLITICS = 'путин, тоталитаризм, революция, митинг, болотная'
+export const UKRAINE = 'зеленский, украина, майдан'
+export const PRIVATE_LIFE = 'секс, мастурбация, нюдс'
+export const BLOCKED_SITES = 'meduza.io, novayagazeta.ru'

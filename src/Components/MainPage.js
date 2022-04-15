@@ -214,7 +214,7 @@ class MainPage extends React.Component {
             <>
                 <div
                     className={classNames('page', {
-                        'page-small': isSmallWidth,
+                        // 'page-small': isSmallWidth,
                         'page-third-column': isChatDetailsVisible
                     })}>
                     <Dialogs />

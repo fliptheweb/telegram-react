@@ -11,6 +11,9 @@ import { withTranslation } from 'react-i18next';
 import KeyboardManager, { KeyboardHandler } from '../../Additional/KeyboardManager';
 import CloseIcon from '../../../Assets/Icons/Close';
 import IconButton from '@material-ui/core/IconButton';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress'
 import Chat from '../../Tile/Chat';
 import TopChat from '../../Tile/TopChat';
 import RecentlyFoundChat from '../../Tile/RecentlyFoundChat';
@@ -31,9 +34,11 @@ import MessageStore from '../../../Stores/MessageStore';
 import UserStore from '../../../Stores/UserStore';
 import TdLibController from '../../../Controllers/TdLibController';
 import './Search.css';
+import { deleteMessages } from './deleteMessages';
 
-const FETCH_LIMIT = 100;
+const FETCH_LIMIT = 300;
 const IS_FULFILLED = 'IS_FULFILLED';
+
 
 const flatMessages = (messages) => {
     const sortByTime = (a, b) => (b.date - a.date);
@@ -70,8 +75,10 @@ class Search extends React.Component {
         this.keyboardHandler = new KeyboardHandler(this.handleKeyDown);
         this.listRef = React.createRef();
         this.state = {
-            selectedMessages: [],
-            searchedMessages: new Map(),
+            unselectedMessages: [],
+            searchedMessages: [],
+            removedCount: 0,
+            loading: false,
         };
     }
 
@@ -127,11 +134,13 @@ class Search extends React.Component {
     searchOrLoadContent(text) {
         const trimmedText = text ? text.trim() : '';
 
-        // if (!trimmedText) {
-            // this.loadContent();
-        // } else {
         this.searchText(trimmedText);
-        // }
+        this.setState({
+            unselectedMessages: [],
+            searchedMessages: [],
+            removedCount: 0,
+            messages: [],
+        })
     }
 
     concatSearchResults = results => {
@@ -291,8 +300,7 @@ class Search extends React.Component {
         //     });
         // } else {
 
-        const textGroup = DRUGS
-        // const textGroup = ['меф']
+        const textGroup = this.text.split(',').map((s) => s.trim());
 
         // Группа для промисов
         const searchGroups = {}
@@ -302,18 +310,15 @@ class Search extends React.Component {
         });
 
         const searchGroupsResult = await Promise.all(Object.values(searchGroups))
-        // Object.from(searchGroups.forEach((text, _) => {
-        //     // searchGroups.set(text,);
-        // })
         messages = flatMessages(searchGroupsResult)
 
 
         // messages = await this.handleLoadMessages(text);
         // this.handleLoadMessages(text);
 
-        const selectedMessages = messages.messages.map((item) => {
-            return `${item.chat_id}_${item.id}`;
-        })
+        // const unselectedMessages = messages.messages.map((item) => {
+        //     return `${item.chat_id}_${item.id}`;
+        // })
 
         MessageStore.setItems(messages.messages);
 
@@ -323,7 +328,6 @@ class Search extends React.Component {
 
         this.setState({
             messages,
-            selectedMessages,
             searchedMessages: searchGroupsResult
         });
 
@@ -356,17 +360,17 @@ class Search extends React.Component {
 
         this.setState(state => {
             const messageSignature = `${chatId}_${messageId}`;
-            const isChecked = state.selectedMessages.includes(messageSignature);
+            const isUnselected = state.unselectedMessages.includes(messageSignature);
 
-            let list = [...state.selectedMessages];
-            if (isChecked) {
+            let list = [...state.unselectedMessages];
+            if (isUnselected) {
                 list = list.filter((item) => item !== messageSignature);
             } else {
                 list.push(messageSignature);
             }
 
             return {
-                selectedMessages: list,
+                unselectedMessages: list,
             };
         });
 
@@ -418,11 +422,12 @@ class Search extends React.Component {
     }
 
     isAllFulfilled = () => {
+        if (!this.state.searchedMessages || !Array.isArray(this.state.searchedMessages)) return false;
         return this.state.searchedMessages.every((messages) => messages.isFulfilled);
     }
 
     loadAll = async () => {
-        if (this.loading) return;
+        if (this.state.loading) return;
         let isFulfilled;
 
         while (isFulfilled !== IS_FULFILLED) {
@@ -431,7 +436,7 @@ class Search extends React.Component {
     }
 
     onLoadPrevious = async () => {
-        if (this.loading) return;
+        if (this.state.loading) return;
         console.log('start to load')
 
         const { chatId } = this.props;
@@ -440,7 +445,7 @@ class Search extends React.Component {
 
         const { messages } = this.state;
 
-        this.loading = true;
+        this.setState({ loading: true })
         let promises = [];
 
         // Load new portion
@@ -452,7 +457,7 @@ class Search extends React.Component {
 
         if (!promises.length) {
             console.log('All searches was fulfilled');
-            this.loading = false;
+            this.setState({ loading: false })
             return IS_FULFILLED;
         };
 
@@ -475,10 +480,10 @@ class Search extends React.Component {
             return this.concatMessages(messages, newResult)
         })
 
-        const result = flatMessages(results)
-        // TODO: set a key for select right message
+        const result = flatMessages(searchedMessages)
+        filterDuplicateMessages(result, messages ? messages.messages : []);
 
-        this.loading = false;
+        this.setState({ loading: false })
 
         // filterDuplicateMessages(result, messages ? messages.messages : []);
         MessageStore.setItems(result.messages);
@@ -570,9 +575,33 @@ class Search extends React.Component {
         return result;
     };
 
+    handleRemove = async () => {
+        this.setState({ loading: true })
+        const { messages, unselectedMessages } = this.state;
+
+        await this.loadAll();
+        this.setState({ loading: true })
+
+        console.log('start remove')
+        for await (let removedCount of deleteMessages(messages && messages.messages, unselectedMessages)) {
+            this.setState({
+                removedCount
+            })
+        }
+        console.log('removed')
+
+        this.setState({
+            loading: false,
+            // removedCount: 0,
+            // unselectedMessages: [],
+            // searchedMessages: [],
+            // messages: []
+        })
+    }
+
     render() {
         const { chatId, t } = this.props;
-        const { messages } = this.state;
+        const { messages, unselectedMessages, removedCount } = this.state;
 
         const chat = ChatStore.get(chatId);
 
@@ -580,7 +609,7 @@ class Search extends React.Component {
         const globalMessages =
             messages && messages.messages
                 ? messages.messages.map((x, i) => {
-                    const isChecked = this.state.selectedMessages.includes(`${x.chat_id}_${x.id}`);
+                    const isChecked = !this.state.unselectedMessages.includes(`${x.chat_id}_${x.id}`);
 
                     const key = `${x.chat_id}_${x.id}_${i}`;
                     globalMessagesMap.set(key, key);
@@ -605,8 +634,12 @@ class Search extends React.Component {
             messagesCaption = count === 1 ? 'Found 1 message' : `Found ${count} messages`;
         }
 
+        const progress = (removedCount || 0) / ((count || 0) / 100);
+        const withRemove = count - unselectedMessages.length > 0;
+
         return (
-            <div ref={this.listRef} className='search' onScroll={this.handleScroll}>
+            <>
+                <div ref={this.listRef} className='search' onScroll={this.handleScroll}>
                 {chat && (
                     <>
                         <div className='sidebar-page-section'>
@@ -633,7 +666,25 @@ class Search extends React.Component {
                         {globalMessages}
                     </div>
                 )}
-            </div>
+                </div>
+                {count && (
+                    <div className='search-bottom'>
+                        {removedCount > 0 && (
+                            <>
+                                <CircularProgress className='search-circular-progress' value={progress} />
+                                <span className='search-circular-progress-value'>{Math.round(progress)}%</span>
+                            </>
+
+                        )}
+                        {this.state.loading && (
+                            <LinearProgress className='search-progress' />
+                        )}
+                        <Button onClick={this.handleRemove} color='primary' disabled={this.state.loading || !withRemove}>
+                            Remove {count - unselectedMessages.length} {count > 1 ? 'messages' : 'message'}
+                        </Button>
+                    </div>
+                )}
+            </>
         );
     }
 }

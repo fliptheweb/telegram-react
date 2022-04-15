@@ -6,7 +6,7 @@
  */
 
 .dialogs {
-    max-width: 50%;
+    max-width: 800px;
     flex: 1 1 25%;
     margin: 0 auto;
     box-sizing: border-box;

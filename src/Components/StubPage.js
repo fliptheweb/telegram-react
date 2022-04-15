@@ -45,7 +45,7 @@ class StubPage extends React.Component {
     onClientUpdatePageWidth = update => {
         const { isSmallWidth } = update;
 
-        this.setState({ isSmallWidth });
+        // this.setState({ isSmallWidth });
     };
 
     render() {
@@ -58,7 +58,7 @@ class StubPage extends React.Component {
             <>
                 <div
                     className={classNames('page', {
-                        'page-small': isSmallWidth
+                        // 'page-small': isSmallWidth
                     })}>
                     <div className='dialogs'>
                         <div className='header-master'>

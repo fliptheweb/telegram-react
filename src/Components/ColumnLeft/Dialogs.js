@@ -32,6 +32,7 @@ import ChatStore from '../../Stores/ChatStore';
 import FileStore from '../../Stores/FileStore';
 import FilterStore from '../../Stores/FilterStore';
 import TdLibController from '../../Controllers/TdLibController';
+import { DRUGS, UKRAINE, POLITICS, PRIVATE_LIFE } from '../../SearchGroups';
 import './Dialogs.css';
 
 const defaultTimeout = {
@@ -392,6 +393,12 @@ class Dialogs extends Component {
         });
     };
 
+    handleSelectGroup = group => {
+        this.handleSearchTextChange(group);
+        const header = this.dialogsHeaderRef.current;
+        header.setInitQuery(group);
+    }
+
     handleSaveCache = () => {
         this.saveCache();
     };
@@ -458,13 +465,7 @@ class Dialogs extends Component {
             <>
                 <div className='dialogs'>
                     <div className='sidebar-page'>
-                        <div>
-                            <ul>
-                                <li>Наркотики - трава, травка, гашиш, джойн, марихуанна, гидра</li>
-                                <li>Политика - путин, медведев, шульгина</li>
-                                <li>Украина - война, киев, слава украине, героям слава</li>
-                                <li>Заблокированные сайты - meduza, дождь, tvrain.ru</li>
-                            </ul>
+                        {/* <div>
                             <div>
                                 <label>
                                     <input type="checkbox" />
@@ -475,10 +476,7 @@ class Dialogs extends Component {
                                     Только мои сообщения
                                 </label>
                             </div>
-                            <Button variant="contained" color="primary" onClick={this.handleRemoveClick}>
-                                Удалить сообщения
-                            </Button>
-                        </div>
+                        </div> */}
                         <DialogsHeader
                             ref={this.dialogsHeaderRef}
                             openSearch={openSearch}
@@ -486,6 +484,7 @@ class Dialogs extends Component {
                             onClick={this.handleHeaderClick}
                             onSearch={this.handleSearch}
                             onSearchTextChange={this.handleSearchTextChange}
+                            onGroupSelected={this.handleSelectGroup}
                         />
                         <div className='dialogs-content'>
                             {/* <div className='dialogs-content-internal'> */}

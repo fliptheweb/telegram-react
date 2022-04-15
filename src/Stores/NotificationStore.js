@@ -179,7 +179,7 @@ class NotificationStore extends EventEmitter {
                         if (now > this.nextSoundAt) {
                             try {
                                 const audio = new Audio('sounds/sound_a.mp3');
-                                audio.play();
+                                // audio.play();
                             } catch { }
 
                             const nextSoundAt = new Date();

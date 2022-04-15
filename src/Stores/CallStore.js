@@ -393,15 +393,15 @@ class CallStore extends EventEmitter {
     }
 
     playSound(sound) {
-        try {
-            this.audio = this.audio || new Audio();
-            const { audio } = this;
+        // try {
+        //     this.audio = this.audio || new Audio();
+        //     const { audio } = this;
 
-            audio.src = sound;
-            audio.play();
-        } catch (e) {
-            ERROR_CALL('playSound', sound, e);
-        }
+        //     audio.src = sound;
+        //     audio.play();
+        // } catch (e) {
+        //     ERROR_CALL('playSound', sound, e);
+        // }
     }
 
     startConnectingSound(connection) {
