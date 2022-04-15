@@ -590,12 +590,13 @@ class Search extends React.Component {
         }
         console.log('removed')
 
+        // reset
         this.setState({
             loading: false,
-            // removedCount: 0,
-            // unselectedMessages: [],
-            // searchedMessages: [],
-            // messages: []
+            removedCount: 0,
+            unselectedMessages: [],
+            searchedMessages: [],
+            messages: []
         })
     }
 
