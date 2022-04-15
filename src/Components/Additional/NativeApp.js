@@ -29,6 +29,7 @@ class NativeApp extends React.Component {
             src = 'WP_2x.jpg';
         }
 
+
         return (
             <div className='app-inactive'>
                 <div className='app-inactive-wrapper'>
