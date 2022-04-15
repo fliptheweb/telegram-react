@@ -7,7 +7,6 @@
 
 const {
     override,
-    addWebpackModuleRule,
 } = require('customize-cra');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
@@ -37,8 +36,4 @@ module.exports = override(
         generateStatsFile: true,
         statsFilename: 'bundle-stats.json'
     }),
-    addWebpackModuleRule({
-        test: /\.worker\.js$/,
-        use: { loader: 'worker-loader' },
-    })
 );
