@@ -24,10 +24,16 @@ class MessageStore extends EventEmitter {
         this.items = new Map();
         this.media = new Map();
         this.selectedItems = new Map();
+        this.selectedMessages = new Map();
+        this.searchMessages = [];
     };
 
     onUpdate = update => {
         switch (update['@type']) {
+            case 'updateSelectedMessages': {
+                console.log('updateSelectedMessages')
+                break;
+            }
             case 'updateAuthorizationState': {
                 const { authorization_state } = update;
                 if (!authorization_state) break;
@@ -326,6 +332,10 @@ class MessageStore extends EventEmitter {
             }
         }
     };
+
+    setSearchMessages(messages) {
+        this.searchMessages = messages;
+    }
 
     hasSelectedMessage(chatId, messageId) {
         return this.selectedItems.has(`chatId=${chatId}_messageId=${messageId}`);

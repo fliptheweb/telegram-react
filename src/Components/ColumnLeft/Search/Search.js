@@ -32,6 +32,37 @@ import UserStore from '../../../Stores/UserStore';
 import TdLibController from '../../../Controllers/TdLibController';
 import './Search.css';
 
+const FETCH_LIMIT = 100;
+const IS_FULFILLED = 'IS_FULFILLED';
+
+const flatMessages = (messages) => {
+    const sortByTime = (a, b) => (b.date - a.date);
+    let DEFAULT_ACCUM = {
+        '@type': 'messages',
+        '@client_id': 1,
+        '@extra': {
+            query_id: 20
+        },
+        messages: [],
+        total_count: 0,
+    }
+    const result = messages.reduce((accum, item) => {
+        accum = {
+            ...accum,
+            total_count: accum.total_count + item.total_count,
+            messages: [
+                ...accum.messages,
+                ...item.messages,
+            ]
+        };
+        return accum;
+    }, DEFAULT_ACCUM);
+    result.messages.sort(sortByTime)
+
+    return result
+}
+
+
 class Search extends React.Component {
     constructor(props) {
         super(props);
@@ -39,7 +70,8 @@ class Search extends React.Component {
         this.keyboardHandler = new KeyboardHandler(this.handleKeyDown);
         this.listRef = React.createRef();
         this.state = {
-            selectedMessages: []
+            selectedMessages: [],
+            searchedMessages: new Map(),
         };
     }
 
@@ -49,11 +81,18 @@ class Search extends React.Component {
         this.searchOrLoadContent(text);
 
         KeyboardManager.add(this.keyboardHandler);
+        MessageStore.on('updateSelectedMessages', this.onClientUpdateSelectedMessages);
     }
 
     componentWillUnmount() {
         KeyboardManager.remove(this.keyboardHandler);
+        MessageStore.on('updateSelectedMessages', this.onClientUpdateSelectedMessages);
     }
+
+    onClientUpdateSelectedMessages(data) {
+        console.log('gotcha', data)
+    }
+
 
     handleKeyDown = event => {
         if (modalManager.modals.length > 0) {
@@ -252,41 +291,25 @@ class Search extends React.Component {
         //     });
         // } else {
 
-        // const textGroup = DRUGS;
-        const textGroup = ['меф'];
-        const promises = [];
+        const textGroup = DRUGS
+        // const textGroup = ['меф']
+
+        // Группа для промисов
+        const searchGroups = {}
+
         textGroup.map((text) => {
-            promises.push(this.handleLoadMessages(text));
+            searchGroups[text] = this.handleLoadMessages(text)
         });
 
-        const promisesResult = await Promise.all(promises);
-        const sortByTime = (a, b) => (b.date - a.date);
-        let DEFAULT_ACCUM = {
-            '@type': 'messages',
-            '@client_id': 1,
-            '@extra': {
-                query_id: 20
-            },
-            messages: [],
-            total_count: 0,
-        }
-        messages = promisesResult.reduce((accum, item) => {
-            accum = {
-                ...accum,
-                total_count: accum.total_count + item.total_count,
-                messages: [
-                    ...accum.messages,
-                    ...item.messages,
-                ]
-            };
-            return accum;
-        }, DEFAULT_ACCUM);
+        const searchGroupsResult = await Promise.all(Object.values(searchGroups))
+        // Object.from(searchGroups.forEach((text, _) => {
+        //     // searchGroups.set(text,);
+        // })
+        messages = flatMessages(searchGroupsResult)
+
+
         // messages = await this.handleLoadMessages(text);
         // this.handleLoadMessages(text);
-        messages = {
-            ...messages,
-            messages: messages.messages.sort(sortByTime),
-        }
 
         const selectedMessages = messages.messages.map((item) => {
             return `${item.chat_id}_${item.id}`;
@@ -294,17 +317,14 @@ class Search extends React.Component {
 
         MessageStore.setItems(messages.messages);
 
-        // console.log('[se] searchText=' + text + ' result', messages, linkMessage);
-
         if (sessionId !== this.sessionId) {
             return;
         }
 
-        // console.log('[se] searchText=' + text + ' result session', messages, linkMessage);
-
         this.setState({
             messages,
             selectedMessages,
+            searchedMessages: searchGroupsResult
         });
 
         const chats = new Map();
@@ -319,62 +339,6 @@ class Search extends React.Component {
         store = FileStore.getStore();
         loadChatsContent(store, [...chats.keys()]);
         loadUsersContent(store, [...users.keys()]);
-    };
-
-    loadContent = async () => {
-        const { chatId } = this.props;
-        if (chatId) {
-            this.setState({
-                top: null,
-                recentlyFound: null,
-                local: null,
-                global: null,
-                messages: null,
-                linkMessage: null
-            });
-
-            return;
-        }
-
-        // const topPromise = TdLibController.send({
-        //     '@type': 'getTopChats',
-        //     category: { '@type': 'topChatCategoryUsers' },
-        //     limit: 30
-        // }).catch(() => {
-        //     return { '@type': 'chats', chat_ids: [] };
-        // });
-
-        const recentlyFoundPromise = TdLibController.send({
-            '@type': 'searchChats',
-            query: '',
-            limit: 100
-        }).catch(() => {
-            return { '@type': 'chats', chat_ids: [] };
-        });
-
-        // const savedMessagesPromise = TdLibController.send({
-        //     '@type': 'createPrivateChat',
-        //     user_id: UserStore.getMyId(),
-        //     force: true
-        // }).catch(error => {});
-
-        const [recentlyFound] = await Promise.all([
-            recentlyFoundPromise,
-            // savedMessagesPromise
-        ]);
-
-        this.setState({
-            recentlyFound,
-            // savedMessages,
-            local: null,
-            global: null,
-            messages: null,
-            linkMessage: null
-        });
-
-        const store = FileStore.getStore();
-        // loadChatsContent(store, top.chat_ids);
-        loadChatsContent(store, recentlyFound.chat_ids);
     };
 
     handleClearRecentlyFound = event => {
@@ -400,7 +364,6 @@ class Search extends React.Component {
             } else {
                 list.push(messageSignature);
             }
-            console.log(list);
 
             return {
                 selectedMessages: list,
@@ -415,7 +378,10 @@ class Search extends React.Component {
         const list = this.listRef.current;
 
         if (list.scrollTop + list.offsetHeight >= list.scrollHeight - SCROLL_PRECISION) {
-            this.onLoadPrevious();
+            if (!this.isAllFulfilled()) {
+                this.onLoadPrevious();
+                // this.loadAll();
+            }
         }
     };
 
@@ -441,13 +407,32 @@ class Search extends React.Component {
         if (!messages.messages.length) return result;
 
         return {
+            text: messages.text,
             total_count: result.total_count,
             messages: messages.messages.concat(result.messages)
         };
     };
 
+    findSearchedMessagesByText = (results, text) => {
+        return results.find((messages) => messages.text === text);
+    }
+
+    isAllFulfilled = () => {
+        return this.state.searchedMessages.every((messages) => messages.isFulfilled);
+    }
+
+    loadAll = async () => {
+        if (this.loading) return;
+        let isFulfilled;
+
+        while (isFulfilled !== IS_FULFILLED) {
+            isFulfilled = await this.onLoadPrevious();
+        }
+    }
+
     onLoadPrevious = async () => {
         if (this.loading) return;
+        console.log('start to load')
 
         const { chatId } = this.props;
 
@@ -455,26 +440,47 @@ class Search extends React.Component {
 
         const { messages } = this.state;
 
-        const offset = this.getOffset(messages);
-
         this.loading = true;
-        let result = [];
-        // if (chatId) {
-        //     result = await TdLibController.send({
-        //         '@type': 'searchChatMessages',
-        //         chat_id: chatId,
-        //         query: this.text,
-        //         sender_user_id: 0,
-        //         from_message_id: offset.offset_message_id,
-        //         limit: 50,
-        //         filter: null
-        //     });
-        // } else {
-        result = await this.handleLoadMessages(this.text, offset);
-        // }
+        let promises = [];
+
+        // Load new portion
+        this.state.searchedMessages.forEach((messages) => {
+            if (messages.isFulfilled) return;
+            const offset = this.getOffset(messages);
+            promises.push(this.handleLoadMessages(messages.text, offset));
+        });
+
+        if (!promises.length) {
+            console.log('All searches was fulfilled');
+            this.loading = false;
+            return IS_FULFILLED;
+        };
+
+        let results = await Promise.all(promises)
+
+        const searchedMessages = this.state.searchedMessages.map((messages, i) => {
+            const newResult = this.findSearchedMessagesByText(results, messages.text);
+
+            // because we rewrite all search messages
+            if (!newResult) {
+                return messages;
+            }
+
+            // set that search was totally fulfilled
+            const isFulfilled = newResult.messages.length < (FETCH_LIMIT - FETCH_LIMIT / 10);
+            messages.isFulfilled = isFulfilled;
+
+            filterDuplicateMessages(newResult, messages ? messages.messages : []);
+
+            return this.concatMessages(messages, newResult)
+        })
+
+        const result = flatMessages(results)
+        // TODO: set a key for select right message
+
         this.loading = false;
 
-        filterDuplicateMessages(result, messages ? messages.messages : []);
+        // filterDuplicateMessages(result, messages ? messages.messages : []);
         MessageStore.setItems(result.messages);
 
         if (sessionId !== this.sessionId) {
@@ -482,7 +488,8 @@ class Search extends React.Component {
         }
 
         this.setState({
-            messages: this.concatMessages(messages, result)
+            messages: this.concatMessages(messages, result),
+            searchedMessages,
         });
 
         const chats = new Map();
@@ -550,14 +557,17 @@ class Search extends React.Component {
             offset_chat_id: 0,
             offset_message_id: 0,
         }
-        return await TdLibController.send({
+        const result = await TdLibController.send({
             '@type': 'searchMessages',
             chat_list: { '@type': 'chatListMain' },
             query: text,
             ...offset,
-            limit: 100,
+            limit: FETCH_LIMIT,
             // filter_:
         });
+        // Patch result by search text for convenience
+        result.text = text;
+        return result;
     };
 
     render() {

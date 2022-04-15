@@ -75,22 +75,22 @@ class NotificationStore extends EventEmitter {
     onTimer = () => {
         // console.log('[ns] onTimer');
 
-        const unreadCount = this.getUnreadCount();
-        const showBadge = document.title === APP_NAME && unreadCount > 0;
+        // const unreadCount = this.getUnreadCount();
+        // const showBadge = document.title === APP_NAME && unreadCount > 0;
 
-        if (showBadge) {
-            let title = '+99 notifications';
-            if (unreadCount === 1) {
-                title = '1 notification';
-            } else if (unreadCount < 99) {
-                title = `${unreadCount} notifications`;
-            }
-            document.title = title;
-            document.getElementById('favicon').href = 'favicon_unread.ico';
-        } else {
-            document.title = APP_NAME + (this.appInactive ? ': Zzz…' : '');
-            document.getElementById('favicon').href = 'favicon.ico';
-        }
+        // if (showBadge) {
+        //     let title = '+99 notifications';
+        //     if (unreadCount === 1) {
+        //         title = '1 notification';
+        //     } else if (unreadCount < 99) {
+        //         title = `${unreadCount} notifications`;
+        //     }
+        //     document.title = title;
+        //     document.getElementById('favicon').href = 'favicon_unread.ico';
+        // } else {
+        //     document.title = APP_NAME + (this.appInactive ? ': Zzz…' : '');
+        //     document.getElementById('favicon').href = 'favicon.ico';
+        // }
     };
 
     onUpdate = update => {

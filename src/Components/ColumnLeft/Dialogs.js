@@ -8,6 +8,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import CSSTransition from 'react-transition-group/CSSTransition';
+import { Button } from '@material-ui/core'
 import Archive from './Archive';
 import Search from './Search/Search';
 import Filters from './Filters';
@@ -420,6 +421,18 @@ class Dialogs extends Component {
         this.setState({ openNewChannel: false });
     };
 
+    handleRemoveClick = () => {
+        // TODO: make remove
+        const deleteForAll = false;
+
+        // TdLibController.send({
+        //     '@type': 'deleteMessages',
+        //     chat_id: chatId,
+        //     message_ids: [currentMessageIds],
+        //     revoke: deleteForAll,
+        // });
+    }
+
     render() {
         const {
             cache,
@@ -459,8 +472,12 @@ class Dialogs extends Component {
                                 </label><br />
                                 <label>
                                     <input type="checkbox" />
+                                    Только мои сообщения
                                 </label>
                             </div>
+                            <Button variant="contained" color="primary" onClick={this.handleRemoveClick}>
+                                Удалить сообщения
+                            </Button>
                         </div>
                         <DialogsHeader
                             ref={this.dialogsHeaderRef}
@@ -471,16 +488,16 @@ class Dialogs extends Component {
                             onSearchTextChange={this.handleSearchTextChange}
                         />
                         <div className='dialogs-content'>
-                            <div className='dialogs-content-internal'>
-                                <Filters/>
-                                {/*<div className='sidebar-page-top-divider' style={{ zIndex: 1 }}/>*/}
+                            {/* <div className='dialogs-content-internal'> */}
+                                {/* <Filters/> */}
+                                {/* <div className='sidebar-page-top-divider' style={{ zIndex: 1 }}/>
                                 <DialogsList
                                     type='chatListMain'
                                     ref={this.dialogListRef}
                                     cacheItems={mainCacheItems}
                                     onSaveCache={this.handleSaveCache}
                                 />
-                            </div>
+                            </div> */}
                             <CSSTransition
                                 classNames='search'
                                 timeout={timeout}
@@ -498,7 +515,7 @@ class Dialogs extends Component {
                         {/*<UpdatePanel />*/}
                     </div>
 
-                    <SidebarPage open={openArchive} timeout={timeout} onClose={this.handleCloseArchive}>
+                    {/* <SidebarPage open={openArchive} timeout={timeout} onClose={this.handleCloseArchive}>
                         <Archive
                             innerListRef={this.archiveListRef}
                             items={archiveItems}
@@ -512,7 +529,7 @@ class Dialogs extends Component {
 
                     <SidebarPage open={openSettings} timeout={timeout} onClose={this.handleCloseSettings}>
                         <Settings chatId={meChatId} />
-                    </SidebarPage>
+                    </SidebarPage> */}
 {/*
                     <SidebarPage open={openNewGroup} timeout={timeout} onClose={this.handleCloseNewGroup}>
                         <NewGroup />
