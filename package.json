@@ -34,7 +34,7 @@
   "scripts": {
     "precommit": "lint-staged",
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "build": "react-app-rewired build && sw-precache-cra --config sw-config.js --no-minify",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
@@ -47,6 +47,7 @@
     "prettier": "^2.0.1",
     "prop-types": "^15.7.2",
     "react-app-rewired": "^2.1.5",
+    "sw-precache-cra": "^1.0.0",
     "webpack-bundle-analyzer": "^3.6.1",
     "worker-loader": "^2.0.0"
   },
