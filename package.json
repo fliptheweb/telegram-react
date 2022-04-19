@@ -39,7 +39,7 @@
   "scripts": {
     "precommit": "lint-staged",
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build && cp node_modules/tdweb/dist/* public/ && sw-precache-cra --config sw-config.js --no-minify",
+    "build": "cp -R node_modules/tdweb/dist/ public/ && react-app-rewired build && sw-precache-cra --config sw-config.js --no-minify",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
