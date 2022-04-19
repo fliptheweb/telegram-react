@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import GithubCorner from 'react-github-corner';
 import AuthErrorDialog from './AuthErrorDialog';
 import Caption from './Caption';
 import Code from './Code';
@@ -99,6 +100,13 @@ class AuthForm extends React.Component {
 
         return (
             <div className='authorization-form' onLoad={this.handleLoad}>
+                <GithubCorner
+                    href={'https://github.com/fliptheweb/telegram-react'}
+                    bannerColor="#151513"
+                    octoColor="#fff"
+                    size={80}
+                    direction="right"
+                />
                 <div className='authorization-form-content'>
                     <Caption state={state} />
                     {control}
