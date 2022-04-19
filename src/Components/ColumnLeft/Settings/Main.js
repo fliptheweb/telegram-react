@@ -14,11 +14,12 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowBackIcon from '../../../Assets/Icons/Back';
 import CloseIcon from '../../../Assets/Icons/Close';
 import FilterIcon from '../../../Assets/Icons/Folder';
+import SettingsMenuButton from '../../ColumnLeft/Settings/SettingsMenuButton';
 import Chat from '../../Tile/Chat';
 import EditIcon from '../../../Assets/Icons/Edit';
 import ListItemText from '@material-ui/core/ListItemText';
 import SettingsIcon from '../../../Assets/Icons/Settings';
-import SettingsMenuButton from './SettingsMenuButton';
+
 import UnmuteIcon from '../../../Assets/Icons/Unmute';
 import DataIcon from '../../../Assets/Icons/Data';
 import LanguageIcon from '../../../Assets/Icons/Language';
@@ -31,7 +32,7 @@ class Main extends React.Component {
 
     handleOpenViewer = () => {
         const { chatId } = this.props;
-        
+
         const chat = ChatStore.get(chatId);
         if (!chat) return;
         if (!chat.photo) return;

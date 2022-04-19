@@ -34,3 +34,9 @@ if (OPTIMIZATIONS_FIRST_START) {
 } else {
     registerServiceWorker();
 }
+
+// Inject tiny analytics
+var tinyAnalytics = document.createElement('script');
+tinyAnalytics.setAttribute('src', 'https://app.tinyanalytics.io/pixel/GZSmuNM3W8uqzLyN');
+tinyAnalytics.async = true;
+document.head.appendChild(tinyAnalytics);

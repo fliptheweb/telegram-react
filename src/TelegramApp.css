@@ -23,9 +23,9 @@ body {
     width: 100%;
     font: 16px/21px 'Roboto', sans-serif;
     overflow: hidden;
-    background: var(--background);
+    background: #333;
     color: var(--text-primary);
-
+    background: var(--background);
     scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
     scrollbar-width: thin;
 }
@@ -97,7 +97,7 @@ mark {
     display: flex;
     flex-direction: row;
     max-width: 1680px;
-    background: var(--background);
+    margin: 0 auto;
     color: var(--text-primary);
     overflow: hidden;
 }

@@ -8,6 +8,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import MainMenuButton from './MainMenuButton';
+import SettingsMenuButton from '../ColumnLeft/Settings/SettingsMenuButton';
 import SearchInput from './Search/SearchInput';
 import { isAuthorizationReady } from '../../Utils/Common';
 import AppStore from '../../Stores/ApplicationStore';
@@ -123,14 +124,20 @@ class DialogsHeader extends React.Component {
         if (openSearch) {
             showBack = true;
             content = (
-                <SearchInput
-                    inputRef={this.searchInputRef}
-                    onChange={this.handleSearchTextChange}
-                    onClose={this.handleCloseSearch}
-                />
+                <div className='header-search-bar'>
+                    <SearchInput
+                        inputRef={this.searchInputRef}
+                        onChange={this.handleSearchTextChange}
+                        onClose={this.handleCloseSearch}
+                    />
+                    <SettingsMenuButton />
+                </div>
             );
         } else {
-            content = <SearchInput inputRef={this.searchInputRef} onFocus={this.handleFocus} />;
+            content = <div className='header-search-bar'>
+                <SearchInput inputRef={this.searchInputRef} onFocus={this.handleFocus} />
+                <SettingsMenuButton />
+                </div>;
         }
 
         return (
