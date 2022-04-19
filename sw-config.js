@@ -28,7 +28,7 @@ module.exports = {
             './build/*.png',
             './build/data/*.*'],
     stripPrefix: './build',
-    replacePrefix: '/telegram-react',
+    replacePrefix: '/',
     maximumFileSizeToCacheInBytes: 10485760,
     templateFilePath: './service-worker.tmpl',
     importScripts: ['./custom-service-worker.js'],
